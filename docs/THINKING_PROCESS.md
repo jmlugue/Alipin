@@ -54,3 +54,29 @@ The initial `SKILLS.md` file describes each assistant capability as a module wit
 - Hugging Face Distil-Whisper project and model pages for speech-to-text candidates.
 - Hugging Face automatic speech-recognition model listings for current ASR model options.
 - openWakeWord project information for wake-word detection.
+
+## Iteration 1: Text-first runnable prototype
+
+### What changed
+A minimal Python command-line assistant was added before any audio components. This keeps the first runnable version easy to inspect and test:
+
+1. `alipin.router` maps command text to an intent with deterministic phrase matching.
+2. `alipin.notes` writes local timestamped Markdown notes.
+3. `alipin.apps` checks app requests against a static allowlist and dry-runs launches by default.
+4. `alipin.cli` connects the router and skills behind an `alipin` command.
+5. `setup.sh` creates a virtual environment and local command wrapper without needing network access.
+
+### Why start without voice input
+The planned voice assistant still needs wake-word detection and speech-to-text, but the safest learning path is to validate the command pipeline with typed input first. Once routing, note saving, app allowlists, and responses are understandable, audio can feed transcribed text into the same `handle_command` function.
+
+### Safety decisions
+- App launching remains dry-run by default, even for allowlisted apps.
+- App commands come from static configuration instead of model-generated shell commands.
+- Notes are still stored under `notes/`, which is protected from committing personal note files by its `.gitignore`.
+
+### Next recommended iteration
+
+1. Add a simple configuration file for wake name, notes directory, and app allowlist.
+2. Add structured logs that record selected intent and reason.
+3. Add a real web-search implementation for current Q&A.
+4. Add speech-to-text only after the text command path is stable.
