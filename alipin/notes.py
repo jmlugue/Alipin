@@ -1,4 +1,4 @@
-"""Local Markdown note-taking skill."""
+"""Local text note-taking skill."""
 
 from __future__ import annotations
 
@@ -13,13 +13,13 @@ def _slugify(text: str) -> str:
 
 
 def save_note(content: str, notes_dir: Path) -> Path:
-    """Save a timestamped Markdown note and return its path."""
+    """Save a timestamped text note and return its path."""
     cleaned = content.strip()
     if not cleaned:
         raise ValueError("Cannot save an empty note.")
 
     notes_dir.mkdir(parents=True, exist_ok=True)
     timestamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
-    path = notes_dir / f"{timestamp}-{_slugify(cleaned)}.md"
-    path.write_text(f"# Note {timestamp} UTC\n\n{cleaned}\n", encoding="utf-8")
+    path = notes_dir / f"{timestamp}-{_slugify(cleaned)}.txt"
+    path.write_text(f"Note {timestamp} UTC\n\n{cleaned}\n", encoding="utf-8")
     return path

@@ -5,11 +5,11 @@ import pytest
 from alipin.notes import save_note
 
 
-def test_save_note_writes_markdown(tmp_path: Path):
+def test_save_note_writes_text_file(tmp_path: Path):
     note = save_note("Remember the prototype", tmp_path)
 
     assert note.exists()
-    assert note.suffix == ".md"
+    assert note.suffix == ".txt"
     assert "Remember the prototype" in note.read_text(encoding="utf-8")
 
 
