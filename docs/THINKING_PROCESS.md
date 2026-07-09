@@ -80,3 +80,38 @@ The planned voice assistant still needs wake-word detection and speech-to-text, 
 2. Add structured logs that record selected intent and reason.
 3. Add a real web-search implementation for current Q&A.
 4. Add speech-to-text only after the text command path is stable.
+
+
+## Iteration 2: Make typed commands useful before speech
+
+### What changed
+The text-first prototype now performs the three requested non-speech actions:
+
+1. Question commands are handled by `alipin.qa`, a small local answer skill for identity, capability, date/time, and safe arithmetic questions.
+2. App launching is narrowed to Discord as the first allowlisted application. Launching still dry-runs by default unless `--launch-apps` is passed.
+3. Note commands now create timestamped `.txt` files under `D:/AI Notes` by default, and the folder is created automatically if missing.
+
+### Why keep Q&A small first
+A deterministic local answer skill makes the command path runnable without introducing API keys, model hosting, or web-search reliability issues. Broader knowledge and current-fact answers should be added later through a sourced web-search or model-backed Q&A layer.
+
+### Safety decisions
+- The app launcher still uses a static allowlist, currently only Discord.
+- The Q&A math helper evaluates only a small safe arithmetic AST, not arbitrary Python code.
+- Note files are plain text and remain outside version control by default when saved to the configured Data drive folder.
+
+
+## Iteration 3: Hugging Face model-backed Q&A with web context
+
+### What changed
+Question answering moved away from the hard-coded local answer table. The assistant now builds prompts for an open-source Hugging Face text-generation model and can optionally gather DuckDuckGo search snippets for current or explicit search questions.
+
+### Why use the Hugging Face Inference API first
+Using the hosted inference API keeps this iteration small and avoids forcing every learner to install local model runtimes immediately. The configured model can be swapped with `--hf-model`, while the access token is read from `HUGGINGFACE_API_TOKEN` by default so no secrets are committed.
+
+### Web-search decision
+The CLI now treats explicit search commands as Q&A with forced web context. Normal questions automatically search only when they look time-sensitive, such as questions containing "latest", "current", "today", "news", "recent", or "internet".
+
+### Safety decisions
+- Hugging Face tokens are read only from environment variables.
+- Search results are summarized into short prompt context instead of executing anything from the web.
+- Answers include source URLs when web snippets were used.

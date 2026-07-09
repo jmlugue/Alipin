@@ -37,8 +37,8 @@ This file defines the initial capability map for the AI assistant. Each skill sh
 
 **Initial approach:**
 - Maintain an allowlist of apps and commands.
-- Translate commands like "open browser" or "open notes" into operating-system launch actions.
-- Implemented first in `alipin.apps` with dry-run mode enabled by default.
+- Translate commands like "open Discord" into operating-system launch actions.
+- Implemented first in `alipin.apps` with Discord as the only allowlisted app and dry-run mode enabled by default.
 
 **Safety notes:**
 - Do not execute arbitrary shell commands from raw model output.
@@ -51,7 +51,7 @@ This file defines the initial capability map for the AI assistant. Each skill sh
 **Initial approach:**
 - Route time-sensitive questions to a web-search tool.
 - Summarize results and cite sources.
-- Use the language model to synthesize, not invent, current facts.
+- Use the Hugging Face language model to synthesize from snippets, not invent, current facts.
 
 **Safety notes:**
 - Prefer authoritative sources for medical, legal, financial, or security topics.
@@ -62,8 +62,8 @@ This file defines the initial capability map for the AI assistant. Each skill sh
 **Goal:** Capture spontaneous ideas quickly by voice.
 
 **Initial approach:**
-- Commands such as "write this down", "take a note", or "remember this" create a timestamped Markdown note.
-- Store notes in a local `notes/` directory that can be synced later if desired.
+- Commands such as "write this down", "take a note", or "remember this" create a timestamped `.txt` note.
+- Store notes in `D:/AI Notes` by default, creating the folder when needed.
 - Implemented first in `alipin.notes` and reachable through the text-first CLI.
 
 **Safety notes:**
@@ -85,7 +85,8 @@ This file defines the initial capability map for the AI assistant. Each skill sh
 **Goal:** Provide natural answers after a command is understood.
 
 **Initial approach:**
-- Use a local or hosted instruction-tuned model.
+- Use an open-source Hugging Face text-generation model through the Hugging Face Inference API for broader question answering.
+- Add DuckDuckGo search snippets as context for explicitly searched or time-sensitive questions.
 - Keep tool calls structured as JSON-like actions so the assistant can validate them before execution.
 
 **Candidate Hugging Face model direction:**
