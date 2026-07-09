@@ -38,6 +38,7 @@ This file defines the initial capability map for the AI assistant. Each skill sh
 **Initial approach:**
 - Maintain an allowlist of apps and commands.
 - Translate commands like "open browser" or "open notes" into operating-system launch actions.
+- Implemented first in `alipin.apps` with dry-run mode enabled by default.
 
 **Safety notes:**
 - Do not execute arbitrary shell commands from raw model output.
@@ -63,6 +64,7 @@ This file defines the initial capability map for the AI assistant. Each skill sh
 **Initial approach:**
 - Commands such as "write this down", "take a note", or "remember this" create a timestamped Markdown note.
 - Store notes in a local `notes/` directory that can be synced later if desired.
+- Implemented first in `alipin.notes` and reachable through the text-first CLI.
 
 **Safety notes:**
 - Confirm before saving sensitive information.
@@ -76,6 +78,7 @@ This file defines the initial capability map for the AI assistant. Each skill sh
 - Use simple deterministic rules first for learning and safety.
 - Add a model-based router later for ambiguous commands.
 - Keep the router auditable by logging the selected skill and reason.
+- Implemented first in `alipin.router` with phrase-based routing for notes, app launching, web search, Q&A, and fallback conversation.
 
 ## 7. Conversation and Answer Generation
 
