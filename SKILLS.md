@@ -49,9 +49,11 @@ This file defines the initial capability map for the AI assistant. Each skill sh
 **Goal:** Search the web and answer questions with up-to-date information.
 
 **Initial approach:**
-- Route time-sensitive questions to a web-search tool.
+- Route time-sensitive, location-specific, recommendation-oriented, comparative, or explicitly search-oriented questions to a web-search tool.
 - Summarize results and cite sources.
 - Use the Hugging Face language model to synthesize from snippets, not invent, current facts.
+- Use SearXNG's open-source JSON API as the primary search backend, with DuckDuckGo HTML search as a fallback when the configured SearXNG instance is unavailable.
+- Allow SerpAPI as an optional hosted search provider when reliability is more important than staying fully open-source.
 
 **Safety notes:**
 - Prefer authoritative sources for medical, legal, financial, or security topics.
@@ -79,6 +81,7 @@ This file defines the initial capability map for the AI assistant. Each skill sh
 - Add a model-based router later for ambiguous commands.
 - Keep the router auditable by logging the selected skill and reason.
 - Implemented first in `alipin.router` with phrase-based routing for notes, app launching, web search, Q&A, and fallback conversation.
+- Q&A now performs a second, semantic web-need check so questions can receive web context even when they do not use exact web-search keywords.
 
 ## 7. Conversation and Answer Generation
 

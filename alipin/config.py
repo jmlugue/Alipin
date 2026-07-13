@@ -31,9 +31,12 @@ class AssistantConfig:
     wake_name: str = "alipin"
     notes_dir: Path = Path("D:/AI Notes")
     dry_run_apps: bool = True
-    hf_model: str = "HuggingFaceH4/zephyr-7b-beta"
+    hf_model: str = "openai/gpt-oss-120b:together"
     hf_token_env: str = "HUGGINGFACE_API_TOKEN"
     enable_web_search: bool = True
+    search_provider: str = "searxng"
+    searxng_url: str | None = None
+    serpapi_key_env: str = "SERPAPI_API_KEY"
     apps: tuple[AppCommand, ...] = (
         AppCommand("discord", _discord_command(), ("disc", "discord app")),
     )

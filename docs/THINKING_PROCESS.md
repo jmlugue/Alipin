@@ -115,3 +115,64 @@ The CLI now treats explicit search commands as Q&A with forced web context. Norm
 - Hugging Face tokens are read only from environment variables.
 - Search results are summarized into short prompt context instead of executing anything from the web.
 - Answers include source URLs when web snippets were used.
+
+
+## Iteration 4: Update hosted Q&A endpoint
+
+### What changed
+The Hugging Face Q&A client now calls the current Inference Providers router at `https://router.huggingface.co/v1/chat/completions` instead of the older `api-inference.huggingface.co/models/...` text-generation endpoint.
+
+### Why change the endpoint
+The previous endpoint failed DNS resolution on the development machine, while `router.huggingface.co` resolved and accepted HTTPS connections. Hugging Face's current Inference Providers documentation also shows the router endpoint for chat-completion workloads.
+
+### Model decision
+The default hosted model changed to `openai/gpt-oss-120b:together`, matching Hugging Face's provider-specific model suffix pattern and avoiding automatic fastest-provider routing.
+
+### Safety decisions
+- The token remains environment-variable only through `HUGGINGFACE_API_TOKEN`.
+- The client still uses only a fixed HTTPS Hugging Face endpoint.
+- Web snippets remain prompt context only and are not executed.
+
+### Follow-up: token permission clarity
+The client now includes Hugging Face's response body for HTTP errors when available. For HTTP 403 responses, it also points the user to the required `Make calls to Inference Providers` token permission, because plain read tokens can authenticate to the Hub while still being rejected by the Inference Providers router.
+
+### Follow-up: provider routing
+Using `openai/gpt-oss-120b:fastest` routed one request to Cerebras, which returned a Cloudflare 1010 HTML access-denied page. Pinning Groq produced the same class of downstream Cloudflare block. The default now pins the model to Together with `openai/gpt-oss-120b:together`, Alipin falls back through several other providers for the same model, and HTML error pages are summarized before being shown in the terminal.
+
+
+## Iteration 5: Broader web-context routing
+
+### What changed
+The Q&A skill now classifies whether a question needs web context instead of only checking a short keyword list. It routes current, location-specific, recommendation-oriented, comparative, availability, pricing, weather, release, download, schedule, score, and explicit search-style questions through DuckDuckGo snippets before asking the hosted model.
+
+### Why keep this classifier local
+A local classifier is still easy to inspect and test, and it avoids spending a model call just to decide whether to search. This is a practical middle step before adding a model-based planner or a full browser/search API.
+
+### Current limitation
+The search backend is still DuckDuckGo's HTML endpoint and passes only a few snippets to the model. It can improve search triggering, but it is not yet a full browser, crawler, or source-quality ranking system.
+
+
+## Iteration 6: Open-source search API backend
+
+### What changed
+The web-search backend now uses SearXNG's JSON search API first. The CLI accepts `--searxng-url`, and the same setting can be supplied through the `SEARXNG_BASE_URL` environment variable. If SearXNG is unavailable or the instance has JSON disabled, Alipin falls back to the previous DuckDuckGo HTML search helper.
+
+### Why SearXNG
+SearXNG is open source, supports a simple `/search?q=...&format=json` HTTP API, and can be self-hosted. This keeps the assistant aligned with the project goal of understandable, inspectable components without introducing a paid proprietary search key.
+
+### Current limitation
+Public SearXNG instances often rate-limit requests or disable JSON output. For reliable use, the best next step is to self-host a small private SearXNG instance and set `SEARXNG_BASE_URL` to that URL.
+
+
+## Iteration 7: Optional SerpAPI backend
+
+### What changed
+Alipin now supports SerpAPI as an optional hosted search backend. Users can select it with `--search-provider serpapi` and provide the key through `SERPAPI_API_KEY`.
+
+### Why add a hosted option
+Public SearXNG instances are inconsistent because many disable JSON output, rate-limit automated requests, or return bot-check pages. SerpAPI is not open source, but it provides a stable Google Search API shape with `organic_results`, `title`, `link`, and `snippet` fields, which makes the assistant's web context much more reliable.
+
+### Safety decisions
+- SerpAPI keys are read only from environment variables.
+- SearXNG remains the default to preserve the open-source path.
+- DuckDuckGo remains a no-key fallback for local experimentation.
