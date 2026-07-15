@@ -1,0 +1,54 @@
+{
+  "apps": {
+    "chrome": {
+      "display_name": "Chrome",
+      "aliases": ["chrome", "google chrome"],
+      "launch": [
+        { "type": "executable", "command": "chrome.exe" }
+      ]
+    },
+    "edge": {
+      "display_name": "Edge",
+      "aliases": ["edge", "microsoft edge"],
+      "launch": [
+        { "type": "executable", "command": "msedge.exe" }
+      ]
+    },
+    "file_explorer": {
+      "display_name": "File Explorer",
+      "aliases": ["file explorer", "explorer", "windows explorer"],
+      "launch": [
+        { "type": "executable", "command": "explorer.exe" }
+      ]
+    },
+    "notepad": {
+      "display_name": "Notepad",
+      "aliases": ["notepad"],
+      "launch": [
+        { "type": "executable", "command": "notepad.exe" }
+      ]
+    },
+    "vscode": {
+      "display_name": "VS Code",
+      "aliases": ["vs code", "vscode", "visual studio code", "code"],
+      "launch": [
+        { "type": "executable", "command": "code.cmd" },
+        { "type": "executable", "command": "code.exe" }
+      ]
+    },
+    "spotify": {
+      "display_name": "Spotify",
+      "aliases": ["spotify"],
+      "launch": [
+        { "type": "uri", "uri": "spotify:" }
+      ]
+    },
+    "settings": {
+      "display_name": "Settings",
+      "aliases": ["settings", "windows settings"],
+      "launch": [
+        { "type": "uri", "uri": "ms-settings:" }
+      ]
+    }
+  }
+}
