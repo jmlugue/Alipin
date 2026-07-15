@@ -9,6 +9,9 @@ from dataclasses import dataclass
 from pathlib import Path
 
 
+DEFAULT_MODEL_PATH = Path(__file__).resolve().parent.parent / "models" / "vosk-model-small-en-us-0.15"
+
+
 class VoiceUnavailable(RuntimeError):
     """Raised when local speech recognition cannot be used."""
 
@@ -21,7 +24,8 @@ class VoiceResult:
 
 class VoiceListener:
     def __init__(self, model_path: str | os.PathLike[str] | None = None, sample_rate: int = 16000) -> None:
-        self.model_path = Path(model_path or os.environ.get("ALIPIN_VOSK_MODEL", ""))
+        configured_model = model_path or os.environ.get("ALIPIN_VOSK_MODEL")
+        self.model_path = Path(configured_model) if configured_model else DEFAULT_MODEL_PATH
         self.sample_rate = sample_rate
         self.stop_event = threading.Event()
 

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from difflib import SequenceMatcher
 import re
 from dataclasses import dataclass
 from enum import Enum
@@ -104,15 +105,11 @@ def _parse_media(normalized: str, heard: str) -> ParsedCommand | None:
 
 
 def _parse_open_app(normalized: str, heard: str, config: AlipinConfig) -> ParsedCommand | None:
-    target = None
-    for prefix in _OPEN_PREFIXES:
-        if normalized.startswith(prefix):
-            target = normalized.removeprefix(prefix).strip()
-            break
+    target = _extract_open_target(normalized)
     if not target:
         return None
 
-    app = config.alias_map().get(normalize_alias(target))
+    app = _match_app(target, config)
     if not app:
         return None
 
@@ -122,6 +119,51 @@ def _parse_open_app(normalized: str, heard: str, config: AlipinConfig) -> Parsed
         action_label=f"Open {app.display_name}",
         app=app,
     )
+
+
+def _extract_open_target(normalized: str) -> str | None:
+    for prefix in _OPEN_PREFIXES:
+        if normalized.startswith(prefix):
+            return normalized.removeprefix(prefix).strip()
+
+    for marker in (" open ", " launch ", " start "):
+        if marker in normalized:
+            lead, target = normalized.split(marker, maxsplit=1)
+            if _can_ignore_wake_noise(lead):
+                return target.strip()
+    return None
+
+
+def _can_ignore_wake_noise(lead: str) -> bool:
+    words = lead.split()
+    if not words or len(words) > 5:
+        return False
+    if _QUESTION_OR_WEB_INTENT.search(lead):
+        return False
+    compact = "".join(words)
+    return SequenceMatcher(None, compact, "heyalipin").ratio() >= 0.45
+
+
+def _match_app(target: str, config: AlipinConfig) -> AppConfig | None:
+    aliases = config.alias_map()
+    normalized_target = normalize_alias(target)
+    exact = aliases.get(normalized_target)
+    if exact:
+        return exact
+
+    compact_target = normalized_target.replace(" ", "")
+    if len(compact_target) < 4:
+        return None
+
+    best_app: AppConfig | None = None
+    best_score = 0.0
+    for alias, app in aliases.items():
+        compact_alias = alias.replace(" ", "")
+        score = SequenceMatcher(None, compact_target, compact_alias).ratio()
+        if score > best_score:
+            best_score = score
+            best_app = app
+    return best_app if best_score >= 0.78 else None
 
 
 def _parse_song_search(normalized: str) -> str | None:

@@ -45,7 +45,13 @@ If Vosk or a speech model is not available, the `Listen` button falls back to a 
 
 ## Speech Model
 
-Install dependencies from `pyproject.toml`, download a local Vosk English model, then set:
+Install dependencies from `pyproject.toml`, then download the small English Vosk model into:
+
+```text
+models/vosk-model-small-en-us-0.15
+```
+
+Alipin auto-detects that local model folder. To use a different model, set:
 
 ```powershell
 $env:ALIPIN_VOSK_MODEL = "C:\path\to\vosk-model-small-en-us"

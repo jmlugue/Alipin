@@ -43,6 +43,14 @@ def test_parses_spotify_song_search():
     assert command.song == "blinding lights"
 
 
+def test_parses_noisy_wake_and_fuzzy_app_alias():
+    command = parse_command("hey a live in open spot if i", CONFIG)
+
+    assert command.kind is CommandKind.OPEN_APP
+    assert command.app is not None
+    assert command.app.id == "spotify"
+
+
 def test_rejects_ai_and_web_prompts():
     cases = [
         "what is the weather?",
