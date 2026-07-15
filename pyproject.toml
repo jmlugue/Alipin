@@ -1,17 +1,23 @@
 [project]
 name = "alipin"
 version = "0.1.0"
-description = "Learning-first personal voice AI assistant prototype."
+description = "Local-first Windows desktop command assistant prototype."
 readme = "README.md"
-requires-python = ">=3.10"
-dependencies = []
+requires-python = ">=3.11"
+dependencies = [
+  "sounddevice>=0.4.6",
+  "vosk>=0.3.45",
+]
 
 [project.scripts]
-alipin = "alipin.cli:main"
+alipin = "alipin.ui:main"
 
 [build-system]
 requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["alipin"]
 
 [tool.pytest.ini_options]
 pythonpath = ["."]
